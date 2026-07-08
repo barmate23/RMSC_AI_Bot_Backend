@@ -1,0 +1,79 @@
+version: '3.9'
+
+# =============================================================
+# RMSC AI Bot – Docker Compose
+# Services:
+#   - postgres   : PostgreSQL 16 with pgvector extension
+#   - rmsc-ai-bot: Spring Boot application
+# =============================================================
+
+services:
+
+  # -----------------------------------------------------------
+  # PostgreSQL 16 with pgvector
+  # Uses the official ankane/pgvector image which bundles
+  # the pgvector extension pre-installed.
+  # -----------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: rmsc-ai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       rmsc_ai_db
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rmsc_ai_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # -----------------------------------------------------------
+  # RMSC AI Bot – Spring Boot Application
+  # -----------------------------------------------------------
+  rmsc-ai-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rmsc-ai-bot
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database
+      SPRING_DATASOURCE_URL:      jdbc:postgresql://postgres:5432/rmsc_ai_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      # OpenRouter – override these with real values via .env file
+      OPENROUTER_API_KEY:         ${OPENROUTER_API_KEY:-your-key-here}
+      OPENROUTER_BASE_URL:        ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      SPRING_AI_OPENAI_BASE_URL:  ${SPRING_AI_OPENAI_BASE_URL:-https://openrouter.ai/api}
+      OPENROUTER_CHAT_MODEL:      ${OPENROUTER_CHAT_MODEL:-google/gemma-4-31b-it:free}
+      OPENROUTER_EMBEDDING_MODEL: ${OPENROUTER_EMBEDDING_MODEL:-openai/text-embedding-3-small}
+      # Logging
+      LOGGING_LEVEL_COM_RMSC_AI:  DEBUG
+    ports:
+      - "8080:8080"
+    volumes:
+      - app-logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q 'UP'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# =============================================================
+# VOLUMES
+# =============================================================
+volumes:
+  pgdata:
+    driver: local
+  app-logs:
+    driver: local
