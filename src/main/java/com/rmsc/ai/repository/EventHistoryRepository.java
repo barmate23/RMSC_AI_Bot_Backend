@@ -35,6 +35,20 @@ public interface EventHistoryRepository extends JpaRepository<EventHistory, Long
     List<EventHistory> findAllWithoutEmbedding();
 
     /**
+     * Retrieves all events associated with a specific workflow event_reference_id
+     * (e.g. evt001) across its chronological timeline lifecycle trace.
+     *
+     * @param cleanRef the normalized, uppercase reference ID (without hyphens)
+     * @return chronological list of events in the workflow chain
+     */
+    @Query(value = """
+            SELECT * FROM event_history
+            WHERE UPPER(REPLACE(event_reference_id, '-', '')) = :cleanRef
+            ORDER BY event_time ASC
+            """, nativeQuery = true)
+    List<EventHistory> findTimelineByEventReferenceId(@Param("cleanRef") String cleanRef);
+
+    /**
      * Retrieves events for a specific organization, filtered by module.
      *
      * @param organizationId the tenant ID

@@ -40,6 +40,18 @@ public class VectorStoreService {
         log.info("Semantic search initiated. Query: '{}', topK: {}, minSimilarity: {}",
                 request.getQuery(), request.getTopK(), request.getMinSimilarity());
 
+        // 1. Trace Route: If explicit reference ID is in the prompt, pull its timeline directly
+        String directRefId = extractReferenceId(request.getQuery());
+        if (directRefId != null) {
+            String cleanRef = directRefId.replace("-", "").toUpperCase();
+            List<EventHistory> timeline = eventHistoryRepository.findTimelineByEventReferenceId(cleanRef);
+            if (!timeline.isEmpty()) {
+                log.info("Direct tracking code '{}' found in query. Returning {} timeline events.", cleanRef, timeline.size());
+                return mapEventsToSearchResults(timeline);
+            }
+        }
+
+        // 2. Vector Search fallback
         long embedStart = Instant.now().toEpochMilli();
         float[] queryVector = embeddingService.embedQuery(request.getQuery());
         log.info("Query embedding completed in {}ms", Instant.now().toEpochMilli() - embedStart);
@@ -54,6 +66,26 @@ public class VectorStoreService {
         log.info("Vector search returned {} results in {}ms",
                 rawRows.size(), Instant.now().toEpochMilli() - searchStart);
 
+        // 3. Entity-Trace Route: If vector search hits a match, extract its eventReferenceId to pull the timeline
+        if (!rawRows.isEmpty()) {
+            Object[] topRow = rawRows.getFirst();
+            Long topEventId = ((Number) topRow[1]).longValue();
+            EventHistory topEvent = eventHistoryRepository.findById(topEventId).orElse(null);
+
+            if (topEvent != null) {
+                String topRefId = topEvent.getEventReferenceId();
+                if (topRefId != null && !topRefId.isBlank()) {
+                    String cleanRef = topRefId.replace("-", "").toUpperCase();
+                    List<EventHistory> timeline = eventHistoryRepository.findTimelineByEventReferenceId(cleanRef);
+                    if (!timeline.isEmpty()) {
+                        log.info("Vector match event_id={} resolved to eventReferenceId '{}'. Returning full chain of {} events.",
+                                topEventId, cleanRef, timeline.size());
+                        return mapEventsToSearchResults(timeline);
+                    }
+                }
+            }
+        }
+
         List<SearchResult> results = rawRows.stream()
                 .map(this::mapRowToSearchResult)
                 .toList();
@@ -61,6 +93,39 @@ public class VectorStoreService {
         log.info("Semantic search complete. Returned {} results for query: '{}'",
                 results.size(), request.getQuery());
         return results;
+    }
+
+    private String extractReferenceId(String query) {
+        if (query == null) return null;
+        // Match codes like PP1001, PP-2026-001, ASN450, MR5001, evt-mfg-001 (multi-part letter groups ending in digits)
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\b([a-zA-Z]{2,10}(?:-?[a-zA-Z]+)*-?\\d+)\\b");
+        java.util.regex.Matcher matcher = pattern.matcher(query);
+        if (matcher.find()) {
+            return matcher.group(0);
+        }
+        return null;
+    }
+
+    private List<SearchResult> mapEventsToSearchResults(List<EventHistory> events) {
+        return events.stream().map(event -> {
+            boolean hasEmbedding = event.getEmbedding() != null;
+            String text = hasEmbedding ? event.getEmbedding().getEmbeddingText() : event.getDescription();
+            if (text == null || text.isBlank()) {
+                text = event.getEventType() + ": " + event.getReferenceId();
+            }
+            return SearchResult.builder()
+                    .eventId(event.getId())
+                    .similarity(1.0)
+                    .embeddingText(text)
+                    .eventType(event.getEventType())
+                    .moduleName(event.getModuleName())
+                    .referenceType(event.getReferenceType())
+                    .referenceId(event.getReferenceId())
+                    .status(event.getStatus())
+                    .eventTime(event.getEventTime())
+                    .createdBy(event.getCreatedBy())
+                    .build();
+        }).toList();
     }
 
     private String toVectorLiteral(float[] vector) {
@@ -91,7 +156,8 @@ public class VectorStoreService {
                    .referenceType(event.getReferenceType())
                    .referenceId(event.getReferenceId())
                    .status(event.getStatus())
-                   .eventTime(event.getEventTime());
+                   .eventTime(event.getEventTime())
+                   .createdBy(event.getCreatedBy());
         }
 
         return builder.build();

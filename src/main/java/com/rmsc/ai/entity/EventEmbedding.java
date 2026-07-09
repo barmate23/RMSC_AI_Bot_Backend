@@ -24,7 +24,7 @@ public class EventEmbedding {
     @Column(name = "embedding_text", nullable = false, columnDefinition = "TEXT")
     private String embeddingText;
 
-    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VECTOR)
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.OTHER)
     @Column(name = "embedding", nullable = false, columnDefinition = "vector(1536)")
     private float[] embedding;
 

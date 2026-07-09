@@ -17,6 +17,7 @@ public class SearchResult {
     private String referenceType;
     private String referenceId;
     private String status;
+    private String createdBy;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime eventTime;
@@ -25,7 +26,7 @@ public class SearchResult {
     }
 
     public SearchResult(Long eventId, double similarity, String embeddingText, String eventType, String moduleName,
-                        String referenceType, String referenceId, String status, LocalDateTime eventTime) {
+                        String referenceType, String referenceId, String status, String createdBy, LocalDateTime eventTime) {
         this.eventId = eventId;
         this.similarity = similarity;
         this.embeddingText = embeddingText;
@@ -34,6 +35,7 @@ public class SearchResult {
         this.referenceType = referenceType;
         this.referenceId = referenceId;
         this.status = status;
+        this.createdBy = createdBy;
         this.eventTime = eventTime;
     }
 
@@ -62,6 +64,9 @@ public class SearchResult {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+
     public LocalDateTime getEventTime() { return eventTime; }
     public void setEventTime(LocalDateTime eventTime) { this.eventTime = eventTime; }
 
@@ -78,6 +83,7 @@ public class SearchResult {
         private String referenceType;
         private String referenceId;
         private String status;
+        private String createdBy;
         private LocalDateTime eventTime;
 
         public SearchResultBuilder eventId(Long eventId) { this.eventId = eventId; return this; }
@@ -88,11 +94,12 @@ public class SearchResult {
         public SearchResultBuilder referenceType(String referenceType) { this.referenceType = referenceType; return this; }
         public SearchResultBuilder referenceId(String referenceId) { this.referenceId = referenceId; return this; }
         public SearchResultBuilder status(String status) { this.status = status; return this; }
+        public SearchResultBuilder createdBy(String createdBy) { this.createdBy = createdBy; return this; }
         public SearchResultBuilder eventTime(LocalDateTime eventTime) { this.eventTime = eventTime; return this; }
 
         public SearchResult build() {
             return new SearchResult(eventId, similarity, embeddingText, eventType, moduleName, referenceType,
-                    referenceId, status, eventTime);
+                    referenceId, status, createdBy, eventTime);
         }
     }
 }

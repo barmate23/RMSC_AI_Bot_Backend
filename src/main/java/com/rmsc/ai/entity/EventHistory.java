@@ -62,13 +62,16 @@ public class EventHistory {
               fetch = FetchType.LAZY, optional = true)
     private EventEmbedding embedding;
 
+    @Column(name = "event_reference_id", length = 255)
+    private String eventReferenceId;
+
     public EventHistory() {
     }
 
     public EventHistory(Long id, String eventType, String moduleName, String referenceType, String referenceId,
                         String description, String status, Long organizationId, Long userId,
                         LocalDateTime eventTime, Map<String, Object> metadata, String createdBy,
-                        LocalDateTime createdAt, EventEmbedding embedding) {
+                        LocalDateTime createdAt, EventEmbedding embedding, String eventReferenceId) {
         this.id = id;
         this.eventType = eventType;
         this.moduleName = moduleName;
@@ -83,6 +86,7 @@ public class EventHistory {
         this.createdBy = createdBy;
         this.createdAt = createdAt;
         this.embedding = embedding;
+        this.eventReferenceId = eventReferenceId;
     }
 
     public Long getId() { return id; }
@@ -127,6 +131,9 @@ public class EventHistory {
     public EventEmbedding getEmbedding() { return embedding; }
     public void setEmbedding(EventEmbedding embedding) { this.embedding = embedding; }
 
+    public String getEventReferenceId() { return eventReferenceId; }
+    public void setEventReferenceId(String eventReferenceId) { this.eventReferenceId = eventReferenceId; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -170,6 +177,7 @@ public class EventHistory {
         private String createdBy;
         private LocalDateTime createdAt;
         private EventEmbedding embedding;
+        private String eventReferenceId;
 
         public EventHistoryBuilder id(Long id) { this.id = id; return this; }
         public EventHistoryBuilder eventType(String eventType) { this.eventType = eventType; return this; }
@@ -185,10 +193,11 @@ public class EventHistory {
         public EventHistoryBuilder createdBy(String createdBy) { this.createdBy = createdBy; return this; }
         public EventHistoryBuilder createdAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
         public EventHistoryBuilder embedding(EventEmbedding embedding) { this.embedding = embedding; return this; }
+        public EventHistoryBuilder eventReferenceId(String eventReferenceId) { this.eventReferenceId = eventReferenceId; return this; }
 
         public EventHistory build() {
             return new EventHistory(id, eventType, moduleName, referenceType, referenceId, description, status,
-                    organizationId, userId, eventTime, metadata, createdBy, createdAt, embedding);
+                    organizationId, userId, eventTime, metadata, createdBy, createdAt, embedding, eventReferenceId);
         }
     }
 }

@@ -50,6 +50,15 @@ public class FloatArrayToVectorConverter implements AttributeConverter<float[], 
         if (dbData instanceof PGvector pgVector) {
             return pgVector.toArray();
         }
+        if (dbData instanceof org.postgresql.util.PGobject pgObj) {
+            if ("vector".equalsIgnoreCase(pgObj.getType()) && pgObj.getValue() != null) {
+                try {
+                    return new PGvector(pgObj.getValue()).toArray();
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Failed to parse PGvector from PGobject: " + pgObj.getValue(), e);
+                }
+            }
+        }
         if (dbData instanceof String str) {
             try {
                 return new PGvector(str).toArray();

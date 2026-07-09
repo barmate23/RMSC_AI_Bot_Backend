@@ -71,7 +71,7 @@ public class RagPromptBuilder {
                     Statement: %s
                     Module: %s | Event Type: %s
                     Reference: %s %s | Status: %s
-                    Time: %s
+                    Actor: %s | Time: %s
                     """,
                     index.getAndIncrement(),
                     event.getSimilarity() * 100,
@@ -81,6 +81,7 @@ public class RagPromptBuilder {
                     safeStr(event.getReferenceType()),
                     safeStr(event.getReferenceId()),
                     safeStr(event.getStatus()),
+                    safeStr(event.getCreatedBy()),
                     event.getEventTime() != null ? event.getEventTime().toString() : "N/A"
             ));
             sb.append("\n");

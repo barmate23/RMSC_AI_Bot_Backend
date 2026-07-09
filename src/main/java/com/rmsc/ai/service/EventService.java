@@ -44,6 +44,17 @@ public class EventService {
         EventHistory saved  = eventHistoryRepository.save(entity);
 
         log.info("ERP event created with id={}", saved.getId());
+
+        try {
+            // Automatically generate and persist embedding on create
+            EventEmbedding embedding = embeddingService.embedEvent(saved);
+            saved.setEmbedding(embedding);
+            log.info("Successfully auto-embedded new event id={}", saved.getId());
+        } catch (Exception e) {
+            log.error("Failed to automatically generate embedding for event id={}: {}",
+                    saved.getId(), e.getMessage(), e);
+        }
+
         return eventMapper.toResponse(saved);
     }
 

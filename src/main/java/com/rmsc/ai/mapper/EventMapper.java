@@ -39,6 +39,7 @@ public class EventMapper {
                 .eventTime(request.getEventTime())
                 .metadata(request.getMetadata())
                 .createdBy(request.getCreatedBy())
+                .eventReferenceId(request.getEventReferenceId())
                 .build();
     }
 
@@ -69,6 +70,7 @@ public class EventMapper {
                 .createdAt(entity.getCreatedAt())
                 .embedded(emb != null)
                 .embeddingText(emb != null ? emb.getEmbeddingText() : null)
+                .eventReferenceId(entity.getEventReferenceId())
                 .build();
     }
 

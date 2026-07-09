@@ -134,6 +134,9 @@ public class EventSentenceGenerator {
     }
 
     private String genericFallback(EventHistory e) {
+        if (e.getDescription() != null && !e.getDescription().isBlank()) {
+            return e.getDescription();
+        }
         return String.format("%s event occurred for %s %s in the %s module. Status: %s.",
                 e.getEventType(), notBlankOr(e.getReferenceType(), "entity"),
                 notBlankOr(e.getReferenceId(), "unknown"),

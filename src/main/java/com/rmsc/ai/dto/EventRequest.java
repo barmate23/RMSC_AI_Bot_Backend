@@ -45,12 +45,16 @@ public class EventRequest {
     @Size(max = 100)
     private String createdBy;
 
+    @Size(max = 255)
+    private String eventReferenceId;
+
     public EventRequest() {
     }
 
     public EventRequest(String eventType, String moduleName, String referenceType, String referenceId,
                         String description, String status, Long organizationId, Long userId,
-                        LocalDateTime eventTime, Map<String, Object> metadata, String createdBy) {
+                        LocalDateTime eventTime, Map<String, Object> metadata, String createdBy,
+                        String eventReferenceId) {
         this.eventType = eventType;
         this.moduleName = moduleName;
         this.referenceType = referenceType;
@@ -62,6 +66,7 @@ public class EventRequest {
         this.eventTime = eventTime;
         this.metadata = metadata;
         this.createdBy = createdBy;
+        this.eventReferenceId = eventReferenceId;
     }
 
     // Getters and Setters
@@ -98,6 +103,9 @@ public class EventRequest {
     public String getCreatedBy() { return createdBy; }
     public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 
+    public String getEventReferenceId() { return eventReferenceId; }
+    public void setEventReferenceId(String eventReferenceId) { this.eventReferenceId = eventReferenceId; }
+
     public static EventRequestBuilder builder() {
         return new EventRequestBuilder();
     }
@@ -114,6 +122,7 @@ public class EventRequest {
         private LocalDateTime eventTime;
         private Map<String, Object> metadata;
         private String createdBy;
+        private String eventReferenceId;
 
         public EventRequestBuilder eventType(String eventType) { this.eventType = eventType; return this; }
         public EventRequestBuilder moduleName(String moduleName) { this.moduleName = moduleName; return this; }
@@ -126,10 +135,11 @@ public class EventRequest {
         public EventRequestBuilder eventTime(LocalDateTime eventTime) { this.eventTime = eventTime; return this; }
         public EventRequestBuilder metadata(Map<String, Object> metadata) { this.metadata = metadata; return this; }
         public EventRequestBuilder createdBy(String createdBy) { this.createdBy = createdBy; return this; }
+        public EventRequestBuilder eventReferenceId(String eventReferenceId) { this.eventReferenceId = eventReferenceId; return this; }
 
         public EventRequest build() {
             return new EventRequest(eventType, moduleName, referenceType, referenceId, description, status,
-                    organizationId, userId, eventTime, metadata, createdBy);
+                    organizationId, userId, eventTime, metadata, createdBy, eventReferenceId);
         }
     }
 }

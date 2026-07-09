@@ -31,6 +31,7 @@ public class EventResponse {
 
     private boolean embedded;
     private String embeddingText;
+    private String eventReferenceId;
 
     public EventResponse() {
     }
@@ -38,7 +39,7 @@ public class EventResponse {
     public EventResponse(Long id, String eventType, String moduleName, String referenceType, String referenceId,
                          String description, String status, Long organizationId, Long userId,
                          LocalDateTime eventTime, Map<String, Object> metadata, String createdBy,
-                         LocalDateTime createdAt, boolean embedded, String embeddingText) {
+                         LocalDateTime createdAt, boolean embedded, String embeddingText, String eventReferenceId) {
         this.id = id;
         this.eventType = eventType;
         this.moduleName = moduleName;
@@ -54,6 +55,7 @@ public class EventResponse {
         this.createdAt = createdAt;
         this.embedded = embedded;
         this.embeddingText = embeddingText;
+        this.eventReferenceId = eventReferenceId;
     }
 
     // Getters and Setters
@@ -102,6 +104,9 @@ public class EventResponse {
     public String getEmbeddingText() { return embeddingText; }
     public void setEmbeddingText(String embeddingText) { this.embeddingText = embeddingText; }
 
+    public String getEventReferenceId() { return eventReferenceId; }
+    public void setEventReferenceId(String eventReferenceId) { this.eventReferenceId = eventReferenceId; }
+
     public static EventResponseBuilder builder() {
         return new EventResponseBuilder();
     }
@@ -122,6 +127,7 @@ public class EventResponse {
         private LocalDateTime createdAt;
         private boolean embedded;
         private String embeddingText;
+        private String eventReferenceId;
 
         public EventResponseBuilder id(Long id) { this.id = id; return this; }
         public EventResponseBuilder eventType(String eventType) { this.eventType = eventType; return this; }
@@ -138,10 +144,11 @@ public class EventResponse {
         public EventResponseBuilder createdAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
         public EventResponseBuilder embedded(boolean embedded) { this.embedded = embedded; return this; }
         public EventResponseBuilder embeddingText(String embeddingText) { this.embeddingText = embeddingText; return this; }
+        public EventResponseBuilder eventReferenceId(String eventReferenceId) { this.eventReferenceId = eventReferenceId; return this; }
 
         public EventResponse build() {
             return new EventResponse(id, eventType, moduleName, referenceType, referenceId, description, status,
-                    organizationId, userId, eventTime, metadata, createdBy, createdAt, embedded, embeddingText);
+                    organizationId, userId, eventTime, metadata, createdBy, createdAt, embedded, embeddingText, eventReferenceId);
         }
     }
 }
