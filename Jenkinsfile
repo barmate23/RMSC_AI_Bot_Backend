@@ -74,6 +74,9 @@ pipeline {
                         --restart unless-stopped \
                         -p ${HOST_PORT}:${CONTAINER_PORT} \
                         --network ${DOCKER_NETWORK} \
+                        -e SPRING_DATASOURCE_URL=jdbc:postgresql://rmsc-pgvector:5432/rmsc_ai_db \
+                        -e DB_PASSWORD=postgres \
+                        -e SPRING_RABBITMQ_HOST=rabbitmq \
                         ${IMAGE_NAME}:latest
                 """
             }
