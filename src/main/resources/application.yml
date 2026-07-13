@@ -57,7 +57,7 @@ spring:
       base-url: ${SPRING_AI_OPENAI_BASE_URL:https://openrouter.ai/api}
       chat:
         options:
-          model: ${OPENROUTER_CHAT_MODEL:meta-llama/llama-3-8b-instruct:free}
+          model: ${OPENROUTER_CHAT_MODEL:meta-llama/llama-3.1-8b-instruct:free}
           temperature: 0.3
           max-tokens: 2048
       embedding:
@@ -132,7 +132,7 @@ management:
 openrouter:
   api-key: ${OPENROUTER_API_KEY:your-openrouter-api-key-here}
   base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
-  chat-model: ${OPENROUTER_CHAT_MODEL:meta-llama/llama-3-8b-instruct:free}
+  chat-model: ${OPENROUTER_CHAT_MODEL:meta-llama/llama-3.1-8b-instruct:free}
   embedding-model: ${OPENROUTER_EMBEDDING_MODEL:openai/text-embedding-3-small}
   temperature: 0.3
   max-tokens: 2048
