@@ -95,4 +95,16 @@ public class RagPromptBuilder {
     private String safeStr(String value) {
         return (value != null && !value.isBlank()) ? value : "N/A";
     }
+
+    public Prompt buildConversationalPrompt(String question) {
+        return new Prompt(String.format("""
+                You are a helpful, professional, and friendly ERP AI Assistant for the RMSC platform.
+                You can help users trace production plans, check material requests, view gatesecurity scans, quality inspection reports, and track inventory/warehouse events.
+                
+                The user has sent a general message or greeting:
+                "%s"
+                
+                Respond politely, concisely, and ask how you can assist them with their ERP operations today. Do not look up any database content or say "This information cannot be determined".
+                """, question));
+    }
 }

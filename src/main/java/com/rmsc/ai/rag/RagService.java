@@ -45,16 +45,24 @@ public class RagService {
         long pipelineStart = Instant.now().toEpochMilli();
         log.info("RAG pipeline started for question: '{}'", request.getQuestion());
 
-        SearchRequest searchRequest = SearchRequest.builder()
-                .query(request.getQuestion())
-                .topK(request.getTopK())
-                .minSimilarity(request.getMinSimilarity())
-                .build();
+        List<SearchResult> contextEvents;
+        Prompt prompt;
 
-        List<SearchResult> contextEvents = vectorStoreService.search(searchRequest);
-        log.info("Retrieved {} context events for RAG prompt.", contextEvents.size());
+        if (isConversationalQuery(request.getQuestion())) {
+            log.info("Question classified as a Conversational Query. Bypassing database/vector search.");
+            contextEvents = List.of();
+            prompt = promptBuilder.buildConversationalPrompt(request.getQuestion());
+        } else {
+            SearchRequest searchRequest = SearchRequest.builder()
+                    .query(request.getQuestion())
+                    .topK(request.getTopK())
+                    .minSimilarity(request.getMinSimilarity())
+                    .build();
 
-        Prompt prompt = promptBuilder.buildRagPrompt(request.getQuestion(), contextEvents);
+            contextEvents = vectorStoreService.search(searchRequest);
+            log.info("Retrieved {} context events for RAG prompt.", contextEvents.size());
+            prompt = promptBuilder.buildRagPrompt(request.getQuestion(), contextEvents);
+        }
 
         long llmStart = Instant.now().toEpochMilli();
         log.info("Sending prompt to LLM [model={}]", openRouterProperties.getChatModel());
@@ -109,5 +117,29 @@ public class RagService {
             log.warn("Could not extract answer text from LLM response: {}", e.getMessage());
             return "Unable to extract answer from LLM response.";
         }
+    }
+
+    private boolean isConversationalQuery(String question) {
+        if (question == null) return false;
+        String clean = question.trim().toLowerCase();
+        
+        // Remove trailing punctuation for comparison
+        clean = clean.replaceAll("[^a-zA-Z0-9\\s]", "");
+        
+        // Match common greetings
+        if (clean.matches("^(hello|hi|hey|greetings|hola|hey there|good morning|good afternoon|good evening|sup|yo|hi there)$")) {
+            return true;
+        }
+        
+        // Check for common non-search questions
+        if (clean.contains("who are you") || 
+            clean.contains("what is your name") || 
+            clean.contains("how are you") || 
+            clean.contains("tell me about yourself") ||
+            clean.matches("^(thanks|thank you|thank you so much|great|awesome|ok|okay)$")) {
+            return true;
+        }
+        
+        return false;
     }
 }
