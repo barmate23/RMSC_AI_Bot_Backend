@@ -87,6 +87,15 @@ spring:
         initialize-schema: false   # Flyway manages the schema
 
   # -----------------------------------------------------------
+  # RABBITMQ
+  # -----------------------------------------------------------
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:100.98.151.73}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+  # -----------------------------------------------------------
   # JACKSON
   # -----------------------------------------------------------
   jackson:

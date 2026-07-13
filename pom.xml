@@ -124,6 +124,12 @@
             <version>3.8.3</version>
         </dependency>
 
+        <!-- Spring Boot AMQP/RabbitMQ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
