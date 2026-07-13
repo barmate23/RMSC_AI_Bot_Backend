@@ -9,6 +9,7 @@ pipeline {
         HOST_PORT = "8080"
         CONTAINER_PORT = "8080"
         DOCKER_BUILDKIT = "0"
+        OPENROUTER_API_KEY = credentials('openrouter-api-key')
     }
 
     stages {
